@@ -1,0 +1,70 @@
+import wso2/gateway;
+import ballerina/lang.'object;
+
+const string MAIN_MUSTACHE = "Main";
+int totalResourceLength = 0;
+string projectName = "";
+public function main() {
+    gateway:initNativeImpLog4jConfig();
+    boolean isRequestValidationEnabled  = gateway:getConfigBooleanValue(gateway:VALIDATION_CONFIG_INSTANCE_ID,
+    gateway:REQUEST_VALIDATION_ENABLED, gateway:DEFAULT_REQUEST_VALIDATION_ENABLED);
+    boolean isResponseValidationEnabled  = gateway:getConfigBooleanValue(gateway:VALIDATION_CONFIG_INSTANCE_ID,
+    gateway:RESPONSE_VALIDATION_ENABLED, gateway:DEFAULT_RESPONSE_VALIDATION_ENABLED);
+    {{#each this}}
+    get_{{cut qualifiedServiceName " "}}_service();
+    {{/each}}
+    error? err = gateway:extractJAR(projectName);
+    if (err is error) {
+        gateway:printError(gateway:MAIN, "Error when retrieving the resources artifacts", err);
+    }
+    gateway:initiateInterceptorArray(totalResourceLength);
+    initInterceptorIndexes();
+    addTokenServicesFilterAnnotation();
+    gateway:startObservabilityListener();
+
+    {{>jwtRevocation}}
+    startupExtension();
+
+    future<()> callhome = start gateway:invokeCallHome();
+}
+
+{{#each this}}
+public function get_{{cut qualifiedServiceName " "}}_service() {
+    string[] {{cut qualifiedServiceName " "}}_service = [{{#paths}}{{#value}}{{#operations}}{{#value}} "{{operationId}}"{{#unless @last}},{{/unless}}
+                                {{/value}}{{/operations}}{{/value}}{{#unless @last}},{{/unless}}{{/paths}}];
+    totalResourceLength = totalResourceLength +  {{cut qualifiedServiceName " "}}_service.length();
+    gateway:populateAnnotationMaps("{{cut qualifiedServiceName " "}}", {{cut qualifiedServiceName " "}}, {{cut qualifiedServiceName " "}}_service);
+    projectName = "{{projectName}}";
+    
+}
+{{/each}}
+
+public function initInterceptorIndexes() {
+    {{#each this}}
+    initInterceptorIndexes{{cut qualifiedServiceName " "}}();
+    {{/each}}
+}
+
+listener ObjectName jmsListener = new(); // This will be your normal listeners like http listner...
+type ObjectName object {
+    *'object:Listener;
+    public function __attach(service s, string? name) returns error? {
+    }
+    public function __detach(service s) returns error? {
+    }
+    public function __start() returns error? {
+        gateway:printDebug(MAIN_MUSTACHE, "Initializing throttling policies");
+        initThrottlePolicies();
+        gateway:printDebug(MAIN_MUSTACHE, "Initializing Notification JMS Listener");
+        _ = start gateway:initiateNotificationJmsListener();
+        gateway:printDebug(MAIN_MUSTACHE, "Initializing Throttle Data Publisher");
+        gateway:initThrottleDataPublisher();
+        gateway:printDebug(MAIN_MUSTACHE, "Initializing Global Throttle Data Publisher");
+        gateway:initGlobalThrottleDataPublisher();
+    }
+    public function __gracefulStop() returns error? {
+    }
+    public function __immediateStop() returns error? {
+    }
+};
+

@@ -1,0 +1,53 @@
+[project]
+org-name= "wso2"
+version= "3.2.0"
+
+[dependencies]
+"wso2/gateway" = { path = "{{toolkitHome}}/lib/gateway-balo/gateway-2020r1-java8-3.2.0.balo"}
+{{#each dependencies}}
+{{{.}}}
+{{/each}}
+
+[platform]
+target = "java8"
+
+    [[platform.libraries]]
+        module = "jms"
+        path = "{{toolkitHome}}/lib/dependencies/andes-client-3.3.9.jar"
+
+    [[platform.libraries]]
+        module = "jms"
+        path = "{{toolkitHome}}/lib/dependencies/org.wso2.securevault-1.1.1.jar"
+
+    [[platform.libraries]]
+        module = "interceptor"
+        path = "{{toolkitHome}}/lib/dependencies/mgw-interceptor-{{mgwVersion}}.jar"
+
+    [[platform.libraries]]
+        module = "jwtTransformer"
+        path = "{{toolkitHome}}/lib/dependencies/mgw-jwt-transformer-{{mgwVersion}}.jar"
+
+    [[platform.libraries]]
+            module = "jwtGenerator"
+            path = "{{toolkitHome}}/lib/dependencies/mgw-jwt-generator-{{mgwVersion}}.jar"
+
+     [[platform.libraries]]
+        module = "gateway"
+        path = "{{toolkitHome}}/lib/dependencies/org.wso2.carbon.databridge.commons-6.1.45.jar"
+
+     [[platform.libraries]]
+        module = "gateway"
+        path = "{{toolkitHome}}/lib/dependencies/org.wso2.carbon.databridge.commons.binary-6.1.45.jar"
+
+     [[platform.libraries]]
+        module = "gateway"
+        path = "{{toolkitHome}}/lib/dependencies/disruptor-3.4.2.wso2v1.jar"
+
+     [[platform.libraries]]
+        module = "callhome"
+        path = "{{toolkitHome}}/lib/gateway/platform/core-1.0.8.jar"
+
+{{#each libs}}
+    [[platform.libraries]]
+        path = "{{path}}"
+{{/each}}

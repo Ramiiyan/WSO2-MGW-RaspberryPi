@@ -1,0 +1,4 @@
+http1Settings : {
+    keepAlive: gateway:getKeepAliveValue(),
+    maxPipelinedRequests: gateway:getConfigIntValue(gateway:LISTENER_CONF_INSTANCE_ID, gateway:MAX_PIPELINED_REQUESTS, gateway:DEFAULT_MAX_PIPELINED_REQUESTS)
+},

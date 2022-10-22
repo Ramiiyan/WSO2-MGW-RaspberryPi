@@ -1,0 +1,18 @@
+import wso2/gateway;
+
+
+function initThrottlePolicies() {
+    future<()> ftrThrottleSubscription = start gateway:initializeThrottleSubscription();
+   _ = start gateway:initiateThrottlingJmsListener();
+}
+
+function getDeployedPolicies() returns map<json> {
+    return {
+    {{#policyList}}"{{name}}": {
+        count : {{count}},
+        unitTime : {{unitTime}},
+        timeUnit : "{{timeUnit}}",
+        stopOnQuota : {{stopOnQuotaReach}}
+    } {{#unless @last}},{{/unless}}{{/policyList}}
+    };
+}
